@@ -35,7 +35,7 @@ export default function CloudChat() {
   return (
     <div className="openui-cloud-page">
       <AgentInterface
-        storage={storage}
+
         llm={llm}
         componentLibrary={openuiLibrary}
         logoUrl={logoPath}

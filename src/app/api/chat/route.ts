@@ -40,8 +40,8 @@ export async function POST(req: Request) {
   if (!model) return badRequest("model is not available in this agent");
 
   const client = new OpenAI({
-    baseURL: "https://api.thesys.dev/v1/embed",
-    apiKey: requiredEnv("THESYS_API_KEY"), // sent as Authorization: Bearer …
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey: requiredEnv("OPENROUTER_API_KEY"), // sent as Authorization: Bearer …
   });
 
   // App-owned function tools — the loop runs only the names declared here.
@@ -53,7 +53,6 @@ export async function POST(req: Request) {
     model,
     conversation: threadId, // store:true persists to the conversation
     input,
-    store: true,
     tools: [
       { type: "web_search" },
       // image_search is a Cloud extension of the Responses tool union.
@@ -62,7 +61,7 @@ export async function POST(req: Request) {
       // Remote MCP servers run inside OpenUI Cloud, e.g.:
       // { type: "mcp", server_label: "deepwiki", server_url: "https://mcp.deepwiki.com/mcp" },
     ],
-    instructions: generateSystemPrompt({ cloud: true, library: librarySpec }),
+    instructions: generateSystemPrompt({ library: librarySpec }),
   };
 
   let stream: AsyncIterable<Record<string, unknown>>;
@@ -106,7 +105,6 @@ export async function POST(req: Request) {
       }
     },
   });
-
   return new Response(body, {
     headers: {
       "Content-Type": "text/event-stream",

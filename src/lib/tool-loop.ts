@@ -102,9 +102,9 @@ export async function runFunctionToolLoop(options: RunFunctionToolLoopOptions): 
       },
       { signal },
     ) as unknown as Promise<AsyncIterable<Record<string, unknown>>>;
-
+ 
   let pending = await consumeStream(options.firstStream, tools, enqueue);
-
+  // console.log(pending)
   for (let round = 0; pending.length > 0; round++) {
     // Last allowed round: settlement still happens, but the model may not
     // request more tools.
@@ -139,9 +139,12 @@ async function consumeStream(
   const answeredCallIds = new Set<string>();
 
   for await (const event of stream) {
+    // console.log(event)
+    // console.log("---------")
     enqueue(event);
 
     const type = event.type;
+    // console.log(event)
     if (type === "response.output_item.added" || type === "response.output_item.done") {
       const item = event.item as
         | { type?: string; id?: string; call_id?: string; name?: string; arguments?: string }
@@ -174,7 +177,7 @@ async function consumeStream(
       if (call && typeof event.arguments === "string") call.argsJson = event.arguments;
     }
   }
-
+  // console.log(calls)
   // Rule 2: a call that already has an output on this stream is settled.
   return calls.filter((call) => !answeredCallIds.has(call.callId));
 }
